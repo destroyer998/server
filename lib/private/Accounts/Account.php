@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2018 Julius Härtl <jus@bitgrid.net>
  *
@@ -20,8 +23,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-declare(strict_types=1);
 
 namespace OC\Accounts;
 
@@ -55,15 +56,14 @@ class Account implements IAccount {
 
 	public function getFilteredProperties(string $scope = null, string $verified = null): array {
 		return \array_filter($this->properties, function($obj) use ($scope, $verified){
-			$matched = true;
 			/** @var IAccountProperty $obj */
-			if ($scope !== null && $scope !== $obj->getPropertyScope()) {
-				$matched = false;
+			if ($scope !== null && $scope !== $obj->getScope()) {
+				return false;
 			}
-			if ($verified !== null && $verified !== $obj->getPropertyVerified()) {
-				$matched = false;
+			if ($verified !== null && $verified !== $obj->getVerified()) {
+				return false;
 			}
-			return $matched;
+			return true;
 		});
 	}
 

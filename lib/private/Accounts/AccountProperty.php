@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2018 Julius Härtl <jus@bitgrid.net>
  *
@@ -21,18 +24,20 @@
  *
  */
 
-declare(strict_types=1);
-
 namespace OC\Accounts;
 
 use OCP\Accounts\IAccountProperty;
 
 class AccountProperty implements IAccountProperty {
 
+	/** @var string */
 	private $name;
+	/** @var string */
 	private $value;
+	/** @var string */
 	private $scope;
-	private $verified = false;
+	/** @var string */
+	private $verified;
 
 	public function __construct(string $name, string $value, string $scope, string $verified) {
 		$this->name = $name;
@@ -55,10 +60,11 @@ class AccountProperty implements IAccountProperty {
 	 * @since 15.0.0
 	 *
 	 * @param string $name
-	 * @return void
+	 * @return IAccountProperty
 	 */
-	public function setName(string $name) {
+	public function setName(string $name): IAccountProperty {
 		$this->name = $name;
+		return $this;
 	}
 
 	/**
@@ -67,10 +73,11 @@ class AccountProperty implements IAccountProperty {
 	 * @since 15.0.0
 	 *
 	 * @param string $value
-	 * @return void
+	 * @return IAccountProperty
 	 */
-	public function setValue(string $value) {
+	public function setValue(string $value): IAccountProperty {
 		$this->value = $value;
+		return $this;
 	}
 
 	/**
@@ -79,10 +86,11 @@ class AccountProperty implements IAccountProperty {
 	 * @since 15.0.0
 	 *
 	 * @param string $scope
-	 * @return void
+	 * @return IAccountProperty
 	 */
-	public function setScope(string $scope) {
+	public function setScope(string $scope): IAccountProperty {
 		$this->scope = $scope;
+		return $this;
 	}
 
 	/**
@@ -90,11 +98,12 @@ class AccountProperty implements IAccountProperty {
 	 *
 	 * @since 15.0.0
 	 *
-	 * @param bool $verified
-	 * @return void
+	 * @param string $verified
+	 * @return IAccountProperty
 	 */
-	public function setVerified(string $verified) {
+	public function setVerified(string $verified): IAccountProperty {
 		$this->verified = $verified;
+		return $this;
 	}
 
 	/**
@@ -133,7 +142,9 @@ class AccountProperty implements IAccountProperty {
 	/**
 	 * Get the verification status of a property
 	 *
-	 * @return bool
+	 * @since 15.0.0
+	 *
+	 * @return string
 	 */
 	public function getVerified(): string {
 		return $this->verified;

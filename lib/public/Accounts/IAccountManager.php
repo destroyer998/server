@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2018 Julius Härtl <jus@bitgrid.net>
  *
@@ -21,10 +24,7 @@
  *
  */
 
-declare(strict_types=1);
-
 namespace OCP\Accounts;
-
 
 use OCP\IUser;
 

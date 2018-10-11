@@ -327,7 +327,7 @@ class AccountManager implements IAccountManager {
 		];
 	}
 
-	private function parseAccountData(IUser $user, $data) {
+	private function parseAccountData(IUser $user, $data): Account {
 		$account = new Account($user);
 		foreach($data as $property => $accountData) {
 			$account->setProperty($property, $accountData['value'], $accountData['scope'], $accountData['verified']);

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2018 Julius Härtl <jus@bitgrid.net>
  *
@@ -21,10 +24,7 @@
  *
  */
 
-declare(strict_types=1);
-
 namespace OCP\Accounts;
-
 
 /**
  * Interface IAccountProperty
@@ -40,9 +40,9 @@ interface IAccountProperty extends \JsonSerializable {
 	 * @since 15.0.0
 	 *
 	 * @param string $name
-	 * @return void
+	 * @return IAccountProperty
 	 */
-	public function setName(string $name);
+	public function setName(string $name): IAccountProperty;
 
 	/**
 	 * Set the value of a property
@@ -50,9 +50,9 @@ interface IAccountProperty extends \JsonSerializable {
 	 * @since 15.0.0
 	 *
 	 * @param string $value
-	 * @return void
+	 * @return IAccountProperty
 	 */
-	public function setValue(string $value);
+	public function setValue(string $value): IAccountProperty;
 
 	/**
 	 * Set the scope of a property
@@ -60,19 +60,19 @@ interface IAccountProperty extends \JsonSerializable {
 	 * @since 15.0.0
 	 *
 	 * @param string $scope
-	 * @return void
+	 * @return IAccountProperty
 	 */
-	public function setScope(string $scope) ;
+	public function setScope(string $scope): IAccountProperty;
 
 	/**
 	 * Set the verification status of a property
 	 *
 	 * @since 15.0.0
 	 *
-	 * @param bool $verified
-	 * @return void
+	 * @param string $verified
+	 * @return IAccountProperty
 	 */
-	public function setVerified(bool $verified);
+	public function setVerified(string $verified): IAccountProperty;
 
 	/**
 	 * Get the name of a property

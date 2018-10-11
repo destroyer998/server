@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @copyright Copyright (c) 2018 Julius Härtl <jus@bitgrid.net>
  *
@@ -20,7 +23,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
  */
-declare(strict_types=1);
 
 namespace OCP\Accounts;
 
