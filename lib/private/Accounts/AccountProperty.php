@@ -55,19 +55,6 @@ class AccountProperty implements IAccountProperty {
 	}
 
 	/**
-	 * Set the name of a property
-	 *
-	 * @since 15.0.0
-	 *
-	 * @param string $name
-	 * @return IAccountProperty
-	 */
-	public function setName(string $name): IAccountProperty {
-		$this->name = $name;
-		return $this;
-	}
-
-	/**
 	 * Set the value of a property
 	 *
 	 * @since 15.0.0

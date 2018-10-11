@@ -35,16 +35,6 @@ namespace OCP\Accounts;
 interface IAccountProperty extends \JsonSerializable {
 
 	/**
-	 * Set the name of a property
-	 *
-	 * @since 15.0.0
-	 *
-	 * @param string $name
-	 * @return IAccountProperty
-	 */
-	public function setName(string $name): IAccountProperty;
-
-	/**
 	 * Set the value of a property
 	 *
 	 * @since 15.0.0
