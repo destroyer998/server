@@ -143,7 +143,6 @@ describe('OC.L10N tests', function() {
 			OC.L10N.register(TEST_APP, {
 				'Hello world!': 'Hallo Welt!'
 			});
-			expect(console.warn).toHaveBeenCalled();
 			OC.L10N.load(TEST_APP, callbackStub).then(promiseStub);
 			expect(callbackStub.calledOnce).toEqual(true);
 			expect(promiseStub.calledOnce).toEqual(true);
