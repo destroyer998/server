@@ -28,6 +28,8 @@ namespace Tests\Authentication\TwoFactorAuth;
 
 use OC\Authentication\TwoFactorAuth\MandatoryTwoFactor;
 use OCP\IConfig;
+use OCP\IGroupManager;
+use OCP\IUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use Test\TestCase;
 
@@ -36,6 +38,9 @@ class MandatoryTwoFactorTest extends TestCase {
 	/** @var IConfig|MockObject */
 	private $config;
 
+	/** @var IGroupManager|MockObject */
+	private $groupManager;
+
 	/** @var MandatoryTwoFactor */
 	private $mandatoryTwoFactor;
 
@@ -43,8 +48,9 @@ class MandatoryTwoFactorTest extends TestCase {
 		parent::setUp();
 
 		$this->config = $this->createMock(IConfig::class);
+		$this->groupManager = $this->createMock(IGroupManager::class);
 
-		$this->mandatoryTwoFactor = new MandatoryTwoFactor($this->config);
+		$this->mandatoryTwoFactor = new MandatoryTwoFactor($this->config, $this->groupManager);
 	}
 
 	public function testIsNotEnforced() {
@@ -67,6 +73,77 @@ class MandatoryTwoFactorTest extends TestCase {
 		$isEnforced = $this->mandatoryTwoFactor->isEnforced();
 
 		$this->assertTrue($isEnforced);
+	}
+
+	public function testIsNotEnforcedForAnybody() {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user123');
+		$this->config->expects($this->once())
+			->method('getSystemValue')
+			->with('twofactor_enforced', 'false')
+			->willReturn('false');
+
+		$isEnforced = $this->mandatoryTwoFactor->isEnforcedFor($user);
+
+		$this->assertFalse($isEnforced);
+	}
+
+	public function testIsEnforcedForAGroupMember() {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user123');
+		$this->config
+			->method('getSystemValue')
+			->willReturnMap([
+				['twofactor_enforced', 'false', 'true'],
+				['twofactor_enforced_groups', [], ['twofactorers']],
+				['twofactor_enforced_excluded_groups', [], []],
+			]);
+		$this->groupManager->method('isInGroup')
+			->willReturnCallback(function($user, $group) {
+				return $user === 'user123' && $group ==='twofactorers';
+			});
+
+		$isEnforced = $this->mandatoryTwoFactor->isEnforcedFor($user);
+
+		$this->assertTrue($isEnforced);
+	}
+
+	public function testIsEnforcedForOtherGroups() {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user123');
+		$this->config
+			->method('getSystemValue')
+			->willReturnMap([
+				['twofactor_enforced', 'false', 'true'],
+				['twofactor_enforced_groups', [], ['twofactorers']],
+				['twofactor_enforced_excluded_groups', [], []],
+			]);
+		$this->groupManager->method('isInGroup')
+			->willReturn(false);
+
+		$isEnforced = $this->mandatoryTwoFactor->isEnforcedFor($user);
+
+		$this->assertFalse($isEnforced);
+	}
+
+	public function testIsEnforcedButMemberOfExcludedGroup() {
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('user123');
+		$this->config
+			->method('getSystemValue')
+			->willReturnMap([
+				['twofactor_enforced', 'false', 'true'],
+				['twofactor_enforced_groups', [], []],
+				['twofactor_enforced_excluded_groups', [], ['yoloers']],
+			]);
+		$this->groupManager->method('isInGroup')
+			->willReturnCallback(function($user, $group) {
+				return $user === 'user123' && $group ==='yoloers';
+			});
+
+		$isEnforced = $this->mandatoryTwoFactor->isEnforcedFor($user);
+
+		$this->assertFalse($isEnforced);
 	}
 
 	public function testSetEnforced() {
