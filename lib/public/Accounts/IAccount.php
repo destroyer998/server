@@ -56,6 +56,7 @@ interface IAccount extends \JsonSerializable {
 	 *
 	 * @param string $property Must be one of the PROPERTY_ prefixed constants of \OCP\Accounts\IAccountManager
 	 * @return IAccountProperty
+	 * @throws PropertyDoesNotExistException
 	 */
 	public function getProperty(string $property): IAccountProperty;
 

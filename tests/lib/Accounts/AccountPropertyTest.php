@@ -93,6 +93,7 @@ class AccountPropertyTest extends TestCase {
 			AccountManager::VERIFIED
 		);
 		$this->assertEquals([
+			'name' => AccountManager::PROPERTY_WEBSITE,
 			'value' => 'https://example.com',
 			'scope' => AccountManager::VISIBILITY_PUBLIC,
 			'verified' => AccountManager::VERIFIED

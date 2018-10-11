@@ -28,6 +28,7 @@ namespace OC\Accounts;
 
 use OCP\Accounts\IAccount;
 use OCP\Accounts\IAccountProperty;
+use OCP\Accounts\PropertyDoesNotExistException;
 use OCP\IUser;
 
 class Account implements IAccount {
@@ -48,6 +49,9 @@ class Account implements IAccount {
 	}
 
 	public function getProperty(string $property): IAccountProperty {
+		if (!array_key_exists($property, $this->properties)) {
+			throw new PropertyDoesNotExistException($property);
+		}
 		return $this->properties[$property];
 	}
 
@@ -56,8 +60,7 @@ class Account implements IAccount {
 	}
 
 	public function getFilteredProperties(string $scope = null, string $verified = null): array {
-		return \array_filter($this->properties, function($obj) use ($scope, $verified){
-			/** @var IAccountProperty $obj */
+		return \array_filter($this->properties, function(IAccountProperty $obj) use ($scope, $verified){
 			if ($scope !== null && $scope !== $obj->getScope()) {
 				return false;
 			}

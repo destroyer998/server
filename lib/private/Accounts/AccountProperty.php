@@ -48,9 +48,10 @@ class AccountProperty implements IAccountProperty {
 
 	public function jsonSerialize() {
 		return [
-			'value' => $this->value,
-			'scope' => $this->scope,
-			'verified' => $this->verified
+			'name' => $this->getName(),
+			'value' => $this->getValue(),
+			'scope' => $this->getScope(),
+			'verified' => $this->getVerified()
 		];
 	}
 
