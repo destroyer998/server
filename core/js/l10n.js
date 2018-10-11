@@ -173,6 +173,10 @@ OC.L10N = {
 			locale = 'xbr';
 		}
 
+		if (typeof locale === 'undefined') {
+			return (1 == number) ? 0 : 1;
+		}
+
 		if (locale.length > 3) {
 			locale = locale.substring(0, locale.lastIndexOf('_'));
 		}
