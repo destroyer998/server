@@ -44,16 +44,23 @@ class MandatoryTwoFactor {
 	}
 
 	/**
-	 * Check if two-factor auth is enforced system-wide
-	 *
-	 * Note: admins can enforce/exclude mandatory two-factor auth for groups, but
-	 *       this check does not include that. For a user-specific check, use
-	 *       `isEnforcedFor(IUser)` instead.
-	 *
-	 * @return bool
+	 * Get the state of enforced two-factor auth
 	 */
-	public function isEnforced(): bool {
-		return $this->config->getSystemValue('twofactor_enforced', 'false') === 'true';
+	public function getState(): EnforcementState {
+		return new EnforcementState(
+			$this->config->getSystemValue('twofactor_enforced', 'false') === 'true',
+			$this->config->getSystemValue('twofactor_enforced_groups', []),
+			$this->config->getSystemValue('twofactor_enforced_excluded_groups', [])
+		);
+	}
+
+	/**
+	 * Set the state of enforced two-factor auth
+	 */
+	public function setState(EnforcementState $state) {
+		$this->config->setSystemValue('twofactor_enforced', $state->isEnforced() ? 'true' : 'false');
+		$this->config->setSystemValue('twofactor_enforced_groups', $state->getEnforcedGroups());
+		$this->config->setSystemValue('twofactor_enforced_excluded_groups', $state->getExcludedGroups());
 	}
 
 	/**
@@ -68,20 +75,18 @@ class MandatoryTwoFactor {
 	 * @return bool
 	 */
 	public function isEnforcedFor(IUser $user): bool {
-		if (!$this->isEnforced()) {
+		$state = $this->getState();
+		if (!$state->isEnforced()) {
 			return false;
 		}
-
 		$uid = $user->getUID();
-		$enforcedGroups = $this->config->getSystemValue('twofactor_enforced_groups', []);
-		$excludedGroups = $this->config->getSystemValue('twofactor_enforced_excluded_groups', []);
 
 		/*
 		 * If there is a list of enforced groups, we only enforce 2FA for members of those groups.
 		 * For all the other users it is not enforced (overruling the excluded groups list).
 		 */
-		if (!empty($enforcedGroups)) {
-			foreach ($enforcedGroups as $group) {
+		if (!empty($state->getEnforcedGroups())) {
+			foreach ($state->getEnforcedGroups() as $group) {
 				if ($this->groupManager->isInGroup($uid, $group)) {
 					return true;
 				}
@@ -93,7 +98,7 @@ class MandatoryTwoFactor {
 		/**
 		 * If the user is member of an excluded group, 2FA won't be enforced.
 		 */
-		foreach ($excludedGroups as $group) {
+		foreach ($state->getExcludedGroups() as $group) {
 			if ($this->groupManager->isInGroup($uid, $group)) {
 				return false;
 			}
@@ -106,15 +111,5 @@ class MandatoryTwoFactor {
 		return true;
 	}
 
-	/**
-	 * @param bool $enforced the desired state
-	 * @param String[] $enforcedGroups group IDs of groups where 2FA shall be enforced
-	 * @param String[] $excludedGroups group IDs of groups that should be excluded form mandatory 2FA
-	 */
-	public function setEnforced(bool $enforced, array $enforcedGroups = [], $excludedGroups = []) {
-		$this->config->setSystemValue('twofactor_enforced', $enforced ? 'true' : 'false');
-		$this->config->setSystemValue('twofactor_enforced_groups', $enforcedGroups);
-		$this->config->setSystemValue('twofactor_enforced_excluded_groups', $excludedGroups);
-	}
 
 }

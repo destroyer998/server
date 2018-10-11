@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace Tests\Authentication\TwoFactorAuth;
 
+use OC\Authentication\TwoFactorAuth\EnforcementState;
 use OC\Authentication\TwoFactorAuth\MandatoryTwoFactor;
 use OCP\IConfig;
 use OCP\IGroupManager;
@@ -54,34 +55,43 @@ class MandatoryTwoFactorTest extends TestCase {
 	}
 
 	public function testIsNotEnforced() {
-		$this->config->expects($this->once())
+		$this->config
 			->method('getSystemValue')
-			->with('twofactor_enforced', 'false')
-			->willReturn('false');
+			->willReturnMap([
+				['twofactor_enforced', 'false', 'false'],
+				['twofactor_enforced_groups', [], []],
+				['twofactor_enforced_excluded_groups', [], []],
+			]);
 
-		$isEnforced = $this->mandatoryTwoFactor->isEnforced();
+		$state = $this->mandatoryTwoFactor->getState();
 
-		$this->assertFalse($isEnforced);
+		$this->assertFalse($state->isEnforced());
 	}
 
 	public function testIsEnforced() {
-		$this->config->expects($this->once())
+		$this->config
 			->method('getSystemValue')
-			->with('twofactor_enforced', 'false')
-			->willReturn('true');
+			->willReturnMap([
+				['twofactor_enforced', 'false', 'true'],
+				['twofactor_enforced_groups', [], []],
+				['twofactor_enforced_excluded_groups', [], []],
+			]);
 
-		$isEnforced = $this->mandatoryTwoFactor->isEnforced();
+		$state = $this->mandatoryTwoFactor->getState();
 
-		$this->assertTrue($isEnforced);
+		$this->assertTrue($state->isEnforced());
 	}
 
 	public function testIsNotEnforcedForAnybody() {
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('user123');
-		$this->config->expects($this->once())
+		$this->config
 			->method('getSystemValue')
-			->with('twofactor_enforced', 'false')
-			->willReturn('false');
+			->willReturnMap([
+				['twofactor_enforced', 'false', 'false'],
+				['twofactor_enforced_groups', [], []],
+				['twofactor_enforced_excluded_groups', [], []],
+			]);
 
 		$isEnforced = $this->mandatoryTwoFactor->isEnforcedFor($user);
 
@@ -147,19 +157,42 @@ class MandatoryTwoFactorTest extends TestCase {
 	}
 
 	public function testSetEnforced() {
-		$this->config->expects($this->once())
+		$this->config
+			->expects($this->exactly(3))
 			->method('setSystemValue')
-			->with('twofactor_enforced', 'true');
+			->willReturnMap([
+				['twofactor_enforced', 'true'],
+				['twofactor_enforced_groups', []],
+				['twofactor_enforced_excluded_groups', []],
+			]);
 
-		$this->mandatoryTwoFactor->setEnforced(true);
+		$this->mandatoryTwoFactor->setState(new EnforcementState(true));
+	}
+
+	public function testSetEnforcedForGroups() {
+		$this->config
+			->expects($this->exactly(3))
+			->method('setSystemValue')
+			->willReturnMap([
+				['twofactor_enforced', 'true'],
+				['twofactor_enforced_groups', ['twofactorers']],
+				['twofactor_enforced_excluded_groups', ['yoloers']],
+			]);
+
+		$this->mandatoryTwoFactor->setState(new EnforcementState(true, ['twofactorers'], ['yoloers']));
 	}
 
 	public function testSetNotEnforced() {
-		$this->config->expects($this->once())
+		$this->config
+			->expects($this->exactly(3))
 			->method('setSystemValue')
-			->with('twofactor_enforced', 'false');
+			->willReturnMap([
+				['twofactor_enforced', 'false'],
+				['twofactor_enforced_groups', []],
+				['twofactor_enforced_excluded_groups', []],
+			]);
 
-		$this->mandatoryTwoFactor->setEnforced(false);
+		$this->mandatoryTwoFactor->setState(new EnforcementState(false));
 	}
 
 }
